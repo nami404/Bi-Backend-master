@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nami.springbootinit.mapper.SignMapper">
+
+    <resultMap id="BaseResultMap" type="com.nami.springbootinit.model.entity.Sign">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="score" column="score" jdbcType="INTEGER"/>
+            <result property="signInStatus" column="signInStatus" jdbcType="INTEGER"/>
+            <result property="signInTime" column="signInTime" jdbcType="TIMESTAMP"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,score,signInStatus,
+        signInTime,userId,createTime,
+        updateTime,isDelete
+    </sql>
+</mapper>
