@@ -1,5 +1,6 @@
 package com.nami.springbootinit.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nami.springbootinit.annotation.AuthCheck;
 import com.nami.springbootinit.common.BaseResponse;
@@ -25,6 +26,8 @@ import com.nami.springbootinit.service.UserService;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
+import com.nami.springbootinit.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -91,6 +94,50 @@ public class UserController {
         }
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
         return ResultUtils.success(loginUserVO);
+    }
+
+    @GetMapping(value = "/userLogin")
+    public String userLogin(@RequestParam("userAccount") String userAccount, @RequestParam("userPassword") String userPassword) {
+        //创建一个条件构造器
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<User>();
+        //传入查询条件
+
+        userQueryWrapper.eq("userAccount", userAccount).eq("userPassword", userPassword);
+        User user = userService.getOne(userQueryWrapper);
+        if (user != null) {
+            String res = JwtUtil.generateTokenWithBearerPrefix(user.getId(), userAccount);
+            System.out.println(res);
+            return res;
+        }
+
+        return "失败";
+
+    }
+
+
+    @GetMapping("/getUserByUserId")
+    public List<User> getUserByUserID(HttpServletRequest request) {
+        String token = JwtUtil.extractTokenFromRequest(request);
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("Token is missing in request header");
+        }
+        System.out.println("Token: " + token);
+
+        // Validate token before extracting ID
+        if (!JwtUtil.validateToken(token)) {
+            throw new SecurityException("Invalid or expired token");
+        }
+
+        Long id = JwtUtil.extractUserId(token);
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Could not extract user ID from token");
+        }
+
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("id", id);
+        List<User> list = userService.list(userQueryWrapper);
+        System.out.println(list);
+        return list;
     }
 
     /**
